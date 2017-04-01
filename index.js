@@ -15,8 +15,17 @@ function cacheTranslations(options) {
 }
 
 function wrapTranslations(options) {
+  const TPL = `(function construct() {
+    "use strict";
+    angular.module("<%= module %>"<%= standalone %>).config(Configuration);
+
+    /** @ngInject */
+    function Configuration($translateProvider) {
+      <%= contents %>
+    }
+  })()`;
   return es.map(function(file, callback) {
-    file.contents = new Buffer(gutil.template('(function construct(angular) {"use strict";angular.module("<%= module %>"<%= standalone %>).config(["$translateProvider", function($translateProvider) {\n<%= contents %>}]);\n})(angular);', {
+    file.contents = new Buffer(gutil.template(TPL, {
       contents: file.contents,
       file: file,
       module: options.module || 'translations',
